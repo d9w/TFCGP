@@ -1,0 +1,25 @@
+num_nodes: 10
+node_inputs: 2
+total_evals: 50
+active_mutate: True
+input_mutation_rate: 0.5
+output_mutation_rate: 0.5
+node_mutation_rate: 0.5
+lambda: 5
+functions:
+  - tf.add:
+      arity: 2
+  - tf.subtract:
+      arity: 2
+  - tf.multiply:
+      arity: 2
+  - tf.divide:
+      arity: 2
+  - tf.square:
+      arity: 1
+  - tf.cos:
+      arity: 1
+  - tf.sin:
+      arity: 1
+  - tf.atan:
+      arity: 1

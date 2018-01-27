@@ -1,0 +1,57 @@
+num_nodes: 100
+node_inputs: 2
+total_evals: 50000
+active_mutate: True
+input_mutation_rate: 0.1
+output_mutation_rate: 0.1
+node_mutation_rate: 0.1
+lambda: 5
+functions:
+  - tf.add:
+      arity: 2
+  - tf.subtract:
+      arity: 2
+  - tf.multiply:
+      arity: 2
+  - tf.divide:
+      arity: 2
+  - tf.mod:
+      arity: 2
+  - tf.abs:
+      arity: 1
+  - tf.negative:
+      arity: 1
+  - tf.sign:
+      arity: 1
+  - tf.reciprocal:
+      arity: 1
+  - tf.square:
+      arity: 1
+  - tf.round:
+      arity: 1
+  - tf.sqrt:
+      arity: 1
+  - tf.pow:
+      arity: 2
+  - tf.exp:
+      arity: 1
+  - tf.log:
+      arity: 1
+  - tf.log1p:
+      arity: 1
+  - tf.ceil:
+      arity: 1
+  - tf.floor:
+      arity: 1
+  - tf.cos:
+      arity: 1
+  - tf.sin:
+      arity: 1
+  - tf.tan:
+      arity: 1
+  - tf.acos:
+      arity: 1
+  - tf.asin:
+      arity: 1
+  - tf.atan:
+      arity: 1

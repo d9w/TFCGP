@@ -1,0 +1,9 @@
+flake8
+ipython
+matplotlib
+numpy
+PyYAML
+pytest
+scipy
+sklearn
+tensorflow-gpu
