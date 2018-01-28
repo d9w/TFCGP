@@ -8,3 +8,8 @@ def test_config():
     assert len(c.functions) == 0
     c.update("cfg/test.yaml")
     assert c.cfg["num_nodes"] == 10
+
+def test_functions():
+    c = Config()
+    c.update("cfg/test.yaml")
+    assert c.arity["tf.add"] == 2

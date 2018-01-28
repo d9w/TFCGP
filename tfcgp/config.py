@@ -14,9 +14,9 @@ class Config:
             if k == "functions":
                 for f in v:
                     for fk, fv in f.items():
-                        self.arity[k] = fv['arity']
+                        self.arity[fk] = fv['arity']
                         if fk not in self.functions:
-                            self.functions += [eval(fk)]
+                            self.functions += [fk]
             else:
                 self.cfg[k] = v
 
