@@ -33,6 +33,9 @@ class Chromosome:
         self.outputs = []
         self.g = tf.Graph()
         self.tf_out = None
+        self.batch_size = 20
+        with self.g.as_default():
+            self.tf_in = tf.placeholder(tf.float32, shape=(self.batch_size, self.nin))
 
     def recurse_active(self, node_id):
         n = self.nodes[node_id]
@@ -55,7 +58,8 @@ class Chromosome:
         # g.reuse_variables()
         if n.inp:
             # with g.as_default():
-            return tf.get_variable("inp"+str(node_id))
+            return tf.split(self.tf_in, self.nin, axis=1)[node_id]
+            # return tf.get_variable("inp"+str(node_id))
                 #     return tf.get_variable("inp"+str(node_id), dtype=tf.float32,
                 #                         initializer=tf.constant(0.0))
         else:
@@ -99,14 +103,6 @@ class Chromosome:
                         tf_outputs += [self.recurse_tensor(self.outputs[i])]
                     self.tf_out = tf.stack(tf_outputs)
             return self.tf_out
-
-    def run(self):
-        with self.g.as_default():
-            out = self.get_tensors()
-            init = tf.global_variables_initializer()
-            with tf.Session() as sess:
-                sess.run(init)
-                return sess.run(out)
 
     def visualize(self, filename):
         _ = self.get_tensors()
