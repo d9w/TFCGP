@@ -50,27 +50,50 @@ class Chromosome:
 
     def recurse_tensor(self, node_id, g):
         n = self.nodes[node_id]
+        # g.reuse_variables()
         if n.inp:
-            with g.as_default():
-                return tf.constant(0.0)
-                # with tf.variable_scope("program", reuse=tf.AUTO_REUSE):
+            # with g.as_default():
+            return tf.get_variable("inp"+str(node_id))
                 #     return tf.get_variable("inp"+str(node_id), dtype=tf.float32,
                 #                         initializer=tf.constant(0.0))
         else:
             if n.arity == 1:
-                with g.as_default():
-                    return n.function(self.recurse_tensor(n.x, g))
+                # with g.as_default():
+                    # with tf.variable_scope("program", reuse=tf.AUTO_REUSE):
+                return tf.multiply(
+                    tf.get_variable("p"+str(node_id)),
+                                    # dtype=tf.float32,
+                                    # initializer=tf.constant(n.param)),
+                    n.function(self.recurse_tensor(n.x, g)))
             else:
-                with g.as_default():
-                    return n.function(self.recurse_tensor(n.x, g),
-                                      self.recurse_tensor(n.y, g))
+                # with g.as_default():
+                    # with tf.variable_scope("program", reuse=tf.AUTO_REUSE):
+                return tf.multiply(
+                    # tf.get_variable("p"+str(node_id),
+                    tf.get_variable("p"+str(node_id)),
+                                    # dtype=tf.float32,
+                                    # initializer=tf.constant(n.param)),
+                    n.function(self.recurse_tensor(n.x, g),
+                                self.recurse_tensor(n.y, g)))
 
     def get_tensors(self):
         g = tf.Graph()
+        self.set_active()
+        with g.as_default():
+            with tf.variable_scope("program"):
+                for i in range(self.nin):
+                    tf.get_variable("inp"+str(i), dtype=tf.float32,
+                                    initializer=tf.constant(self.nodes[i].param))
+                for i in range(len(self.nodes)):
+                    if self.nodes[i].active and not self.nodes[i].inp:
+                        tf.get_variable("p"+str(i), dtype=tf.float32,
+                                        initializer=tf.constant(self.nodes[i].param))
         tf_outputs = []
-        for i in range(len(self.outputs)):
-            with g.as_default():
-                tf_outputs += [self.recurse_tensor(self.outputs[i], g)]
+        with g.as_default():
+            with tf.variable_scope("program", reuse=True):
+                for i in range(len(self.outputs)):
+                    tf_outputs += [self.recurse_tensor(self.outputs[i], 0.0)]
+                # out = tf.concat(0, tf_outputs)
         return g, tf_outputs
 
     def visualize(self, filename):
@@ -101,6 +124,5 @@ class Chromosome:
         self.outputs = np.floor(genes[:self.nout] * len(self.nodes)).astype(int)
 
     def random(self, config):
-        print(config.arity)
         genes = np.random.rand(self.nout + 4*config.cfg["num_nodes"])
         self.from_genes(genes, config)

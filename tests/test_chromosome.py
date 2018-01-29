@@ -3,7 +3,7 @@ from tfcgp.chromosome import Chromosome
 import numpy as np
 
 c = Config()
-c.update("cfg/base.yaml")
+c.update("cfg/test.yaml")
 
 def test_creation():
     ch = Chromosome(5, 2)
