@@ -1,6 +1,7 @@
 from tfcgp.config import Config
 from tfcgp.chromosome import Chromosome
 import numpy as np
+import tensorflow as tf
 
 c = Config()
 c.update("cfg/test.yaml")
@@ -32,8 +33,8 @@ def test_tensor():
     ch.random(c)
     ch.outputs[0] = 9
     ch.outputs[1] = 9
-    g, tensors = ch.get_tensors()
-    print(tensors)
+    out = ch.get_tensors()
+    print(out)
     assert True
 
 def test_visul():
@@ -41,3 +42,22 @@ def test_visul():
     ch.random(c)
     ch.visualize("test")
     assert True
+
+def test_run():
+    ch = Chromosome(2, 1)
+    ch.random(c)
+    ch.outputs[0] = 2
+    ch.nodes[2].x = 0
+    ch.nodes[2].y = 1
+    ch.nodes[2].function = tf.square
+    ch.nodes[2].arity = 1
+    outv = ch.run()
+    print(outv)
+    assert outv == ch.nodes[2].param
+
+def test_multiout_run():
+    ch = Chromosome(10, 10)
+    ch.random(c)
+    outv = ch.run()
+    print(outv)
+    assert len(outv) > 1

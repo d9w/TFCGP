@@ -31,6 +31,8 @@ class Chromosome:
         self.genes = []
         self.nodes = []
         self.outputs = []
+        self.g = tf.Graph()
+        self.tf_out = None
 
     def recurse_active(self, node_id):
         n = self.nodes[node_id]
@@ -48,7 +50,7 @@ class Chromosome:
     def get_active(self):
         return list(np.where([n.active for n in self.nodes])[0])
 
-    def recurse_tensor(self, node_id, g):
+    def recurse_tensor(self, node_id):
         n = self.nodes[node_id]
         # g.reuse_variables()
         if n.inp:
@@ -64,7 +66,7 @@ class Chromosome:
                     tf.get_variable("p"+str(node_id)),
                                     # dtype=tf.float32,
                                     # initializer=tf.constant(n.param)),
-                    n.function(self.recurse_tensor(n.x, g)))
+                    n.function(self.recurse_tensor(n.x)))
             else:
                 # with g.as_default():
                     # with tf.variable_scope("program", reuse=tf.AUTO_REUSE):
@@ -73,33 +75,43 @@ class Chromosome:
                     tf.get_variable("p"+str(node_id)),
                                     # dtype=tf.float32,
                                     # initializer=tf.constant(n.param)),
-                    n.function(self.recurse_tensor(n.x, g),
-                                self.recurse_tensor(n.y, g)))
+                    n.function(self.recurse_tensor(n.x),
+                                self.recurse_tensor(n.y)))
 
     def get_tensors(self):
-        g = tf.Graph()
-        self.set_active()
-        with g.as_default():
-            with tf.variable_scope("program"):
-                for i in range(self.nin):
-                    tf.get_variable("inp"+str(i), dtype=tf.float32,
-                                    initializer=tf.constant(self.nodes[i].param))
-                for i in range(len(self.nodes)):
-                    if self.nodes[i].active and not self.nodes[i].inp:
-                        tf.get_variable("p"+str(i), dtype=tf.float32,
-                                        initializer=tf.constant(self.nodes[i].param))
-        tf_outputs = []
-        with g.as_default():
-            with tf.variable_scope("program", reuse=True):
-                for i in range(len(self.outputs)):
-                    tf_outputs += [self.recurse_tensor(self.outputs[i], 0.0)]
-                # out = tf.concat(0, tf_outputs)
-        return g, tf_outputs
+        if self.tf_out:
+            return self.tf_out
+        else:
+            self.set_active()
+            with self.g.as_default():
+                with tf.variable_scope("program"):
+                    for i in range(self.nin):
+                        tf.get_variable("inp"+str(i), dtype=tf.float32,
+                                        initializer=tf.constant(1.0))
+                    for i in range(len(self.nodes)):
+                        if self.nodes[i].active and not self.nodes[i].inp:
+                            tf.get_variable("p"+str(i), dtype=tf.float32,
+                                            initializer=tf.constant(self.nodes[i].param))
+            with self.g.as_default():
+                with tf.variable_scope("program", reuse=True):
+                    tf_outputs = []
+                    for i in range(len(self.outputs)):
+                        tf_outputs += [self.recurse_tensor(self.outputs[i])]
+                    self.tf_out = tf.stack(tf_outputs)
+            return self.tf_out
+
+    def run(self):
+        with self.g.as_default():
+            out = self.get_tensors()
+            init = tf.global_variables_initializer()
+            with tf.Session() as sess:
+                sess.run(init)
+                return sess.run(out)
 
     def visualize(self, filename):
-        g, _ = self.get_tensors()
+        _ = self.get_tensors()
         dot = Digraph()
-        for n in g.as_graph_def().node:
+        for n in self.g.as_graph_def().node:
             dot.node(n.name, label=n.name)
             for i in n.input:
                 dot.edge(i, n.name)
