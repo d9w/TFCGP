@@ -13,31 +13,21 @@ def test_creation():
     print(p.y_train.shape)
     assert True
 
-# def test_run():
-#     ch = Chromosome(2, 1)
-#     ch.random(c)
-#     ch.outputs[0] = 2
-#     ch.nodes[2].x = 0
-#     ch.nodes[2].y = 1
-#     ch.nodes[2].function = tf.square
-#     ch.nodes[2].arity = 1
-#     p = Problem()
-#     outv = p.run(ch)
-#     print(outv)
-#     assert outv == ch.nodes[2].param
-
-# def test_multiout_run():
-#     ch = Chromosome(10, 10)
-#     ch.random(c)
-#     p = Problem()
-#     outv = p.run(ch)
-#     print(outv)
-#     assert len(outv) > 1
-
 def test_problem_eval():
     p = Problem()
-    ch = Chromosome(p.nin, p.nout)
+    ch = Chromosome(p.nin, p.nout, p.batch_size)
     ch.random(c)
-    loss = p.run(ch)
+    outs = p.run(ch)
+    print("outputs: ", outs)
+    print(outs.shape)
+    assert True
+
+def test_fit():
+    p = Problem()
+    ch = Chromosome(p.nin, p.nout, p.batch_size)
+    ch.random(c)
+    loss = p.fit(ch)
     print("loss: ", loss)
     assert True
+
+

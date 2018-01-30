@@ -25,17 +25,17 @@ class Node:
 
 class Chromosome:
 
-    def __init__(self, nin, nout):
+    def __init__(self, nin, nout, batch_size):
         self.nin = nin
         self.nout = nout
         self.genes = []
         self.nodes = []
         self.outputs = []
         self.g = tf.Graph()
+        self.batch_size = batch_size
         self.tf_out = None
-        self.batch_size = 20
         with self.g.as_default():
-            self.tf_in = tf.placeholder(tf.float32, shape=(self.batch_size, self.nin))
+            self.tf_in = tf.placeholder(tf.float32, shape=(self.batch_size, self.nin,))
 
     def recurse_active(self, node_id):
         n = self.nodes[node_id]
@@ -58,7 +58,8 @@ class Chromosome:
         # g.reuse_variables()
         if n.inp:
             # with g.as_default():
-            return tf.split(self.tf_in, self.nin, axis=1)[node_id]
+            inp = tf.unstack(self.tf_in, self.nin, axis=1)[node_id]
+            return inp
             # return tf.get_variable("inp"+str(node_id))
                 #     return tf.get_variable("inp"+str(node_id), dtype=tf.float32,
                 #                         initializer=tf.constant(0.0))
@@ -89,9 +90,6 @@ class Chromosome:
             self.set_active()
             with self.g.as_default():
                 with tf.variable_scope("program"):
-                    for i in range(self.nin):
-                        tf.get_variable("inp"+str(i), dtype=tf.float32,
-                                        initializer=tf.constant(1.0))
                     for i in range(len(self.nodes)):
                         if self.nodes[i].active and not self.nodes[i].inp:
                             tf.get_variable("p"+str(i), dtype=tf.float32,
@@ -101,7 +99,7 @@ class Chromosome:
                     tf_outputs = []
                     for i in range(len(self.outputs)):
                         tf_outputs += [self.recurse_tensor(self.outputs[i])]
-                    self.tf_out = tf.stack(tf_outputs)
+                    self.tf_out = tf.transpose(tf.stack(tf_outputs, axis=0))
             return self.tf_out
 
     def visualize(self, filename):
@@ -129,7 +127,8 @@ class Chromosome:
             f = config.functions[fs[i]]
             n = Node(xs[i], ys[i], eval(f), config.arity[f], float(2*g[i, 3]-1.0))
             self.nodes += [n]
-        self.outputs = np.floor(genes[:self.nout] * len(self.nodes)).astype(int)
+        self.outputs = (np.floor(genes[:self.nout] * (len(self.nodes)-self.nin))
+                        +self.nin).astype(int)
 
     def random(self, config):
         genes = np.random.rand(self.nout + 4*config.cfg["num_nodes"])
