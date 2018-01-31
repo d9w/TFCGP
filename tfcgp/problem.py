@@ -27,15 +27,22 @@ def to_categorical(y, num_classes=None):
 
 class Problem:
 
-    def __init__(self):
+    def __init__(self, batch_size=32, epochs=5, seed=1234):
+        self.batch_size = batch_size
+        self.epochs = epochs
         data = datasets.load_boston()
         # target = to_categorical(data.target)
         target = np.array([data.target]).T;
-        self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
+        x_train, x_test, y_train, y_test = train_test_split(
             data.data, target)
-        self.nin = self.x_train.shape[1]
-        self.nout = self.y_train.shape[1]
-        self.batch_size = self.x_train.shape[0]
+        self.train = tf.data.Dataset.from_tensor_slices((x_train, y_train));
+        self.train = self.train.shuffle(seed).repeat().batch(self.batch_size)
+        self.train_itr = self.train.make_one_shot_iterator()
+        self.test = tf.data.Dataset.from_tensor_slices((x_test, y_test));
+        self.test = self.test.shuffle(seed).repeat().batch(self.batch_size)
+        self.test_itr = self.test.make_one_shot_iterator()
+        self.nin = x_train.shape[1]
+        self.nout = y_train.shape[1]
 
     def run(self, c):
         data = self.x_train[:c.batch_size, :]
@@ -47,17 +54,18 @@ class Problem:
                 return sess.run(out, feed_dict={c.tf_in: data})
 
     def fit(self, c):
-        data = self.x_train[:c.batch_size, :]
-        y_true = self.y_train[:c.batch_size, :]
         with c.g.as_default():
             out = c.get_tensors()
-            loss = tf.losses.mean_squared_error(labels=y_true, predictions=out)
+            labels = tf.placeholder(tf.float32, shape=(self.batch_size, self.nout))
+            loss = tf.losses.mean_squared_error(labels=labels, predictions=out)
             optimizer = tf.train.AdamOptimizer()
             train = optimizer.minimize(loss)
             init = tf.global_variables_initializer()
             with tf.Session() as sess:
                 sess.run(init)
-                for i in range(10):
-                    _, lossv = sess.run((train, loss), feed_dict={c.tf_in: data})
+                for i in range(self.epochs):
+                    d, l = self.train_itr.get_next()
+                    loss = tf.losses.mean_squared_error(labels=labels, predictions=out)
+                    _, lossv = sess.run((train, loss), feed_dict={c.tf_in: d, labels: l})
                     print(lossv)
                 return lossv
