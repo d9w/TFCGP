@@ -1,6 +1,7 @@
 from tfcgp.config import Config
 from tfcgp.chromosome import Chromosome
 from tfcgp.classifier import Classifier
+from tfcgp.problem import Problem
 import numpy as np
 import tensorflow as tf
 from sklearn import datasets
@@ -8,49 +9,46 @@ from sklearn import datasets
 c = Config()
 c.update("cfg/test.yaml")
 
-clf = Classifier()
+data = datasets.load_iris()
 
-def test_train():
-    classifier.train(
-        input_fn=lambda:iris_data.train_input_fn(train_x, train_y, batch_size),
-        steps=train_steps)
-    print("After training: ", tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES,
-                                                  scope="program"))
-    ch.print_params()
-    g = tf.get_default_graph()
-    print("3 Default graph: ", g.get_operations())
-
-    assert True
+p = Problem(data.data, data.target)
+ch = Chromosome(p.nin, p.nout, p.batch_size)
+ch.random(c)
+clf = Classifier(ch, p.x_train, p.x_test, p.y_train, p.y_test,
+                 batch_size=p.batch_size, epochs=p.epochs, seed=p.seed)
+fit = 0.0
 
 def test_eval():
-    eval_result = classifier.evaluate(
-        input_fn=lambda:iris_data.eval_input_fn(test_x, test_y, batch_size))
-    ch.print_params()
-    print("Eval result: ", eval_result)
-    assert eval_result['accuracy'] > 0.0
-    assert eval_result['accuracy'] < 1.0
-    assert True
+    acc = clf.evaluate()
+    print("Accuracy: ", acc)
+    params = clf.get_params()
+    print("1 Params: ", params)
+    assert acc >= 0.0
+    assert acc <= 1.0
+    fit = acc
 
-# def test_predict():
-#     expected = ['Setosa', 'Versicolor', 'Virginica']
-#     predict_x = {
-#         'SepalLength': [5.1, 5.9, 6.9],
-#         'SepalWidth': [3.3, 3.0, 3.1],
-#         'PetalLength': [1.7, 4.2, 5.4],
-#         'PetalWidth': [0.5, 1.5, 2.1],
-#     }
+def test_train():
+    params = clf.get_params()
+    print("2 Params: ", params)
+    history = clf.train()
+    params = clf.get_params()
+    print("3 Params: ", params)
+    assert history[0][0] >= history[-1][0] # loss
+    assert history[0][1] <= history[-1][0] # accuracy
 
-#     predictions = classifier.predict(
-#         input_fn=lambda:iris_data.eval_input_fn(predict_x,
-#                                                 labels=None,
-#                                                 batch_size=batch_size))
-
-#     for pred_dict, expec in zip(predictions, expected):
-#         template = ('\nPrediction is "{}" ({:.1f}%), expected "{}"')
-
-#         class_id = pred_dict['class_ids'][0]
-#         probability = pred_dict['probabilities'][class_id]
-
-#         print(template.format(iris_data.SPECIES[class_id],
-#                               100 * probability, expec))
-#     assert True
+def test_improvement():
+    print("Test improvement")
+    # clf.delete()
+    # clf2 = Classifier(ch, p.x_train, p.x_test, p.y_train, p.y_test,
+                 # batch_size=p.batch_size, epochs=p.epochs, seed=p.seed)
+    params = clf.get_params()
+    print("4 Params: ", params)
+    acc1 = clf.evaluate()
+    params = clf.get_params()
+    print("5 Params: ", params)
+    history = clf.train()
+    params = clf.get_params()
+    print("6 Params: ", params)
+    acc2 = clf.evaluate()
+    print("Trained accuracy: ", acc1, acc2)
+    assert acc2 >= acc1

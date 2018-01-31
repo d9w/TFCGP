@@ -15,7 +15,7 @@ def test_creation():
     print(p.y_train.shape)
     assert True
 
-def test_eval():
+def test_get_fitness():
     p = Problem(data.data, data.target)
     ch = Chromosome(p.nin, p.nout, p.batch_size)
     ch.random(c)

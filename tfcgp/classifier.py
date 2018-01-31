@@ -34,8 +34,11 @@ class Classifier:
                                               global_step=tf.train.get_global_step())
             self.acc_labels = tf.argmax(train_labels, 1)
             self.predicted_classes = tf.argmax(self.logits, 1)
-            self.acc_op, self.acc_update = tf.metrics.accuracy(labels=self.acc_labels,
-                                                               predictions=self.predicted_classes)
+            self.acc_op, self.acc_update = tf.metrics.accuracy(
+                labels=self.acc_labels, predictions=self.predicted_classes)
+            init = tf.global_variables_initializer()
+            self.sess.run(init)
+
         # with self.test_g.as_default():
         #     self.chromosome.setup()
         #     test = tf.data.Dataset.from_tensor_slices((x_test, y_test));
@@ -45,8 +48,8 @@ class Classifier:
     def train(self):
         history = []
         with self.train_g.as_default():
-            init = tf.global_variables_initializer()
-            self.sess.run(init)
+            # init = tf.global_variables_initializer()
+            # self.sess.run(init)
             self.print_params()
             init = tf.local_variables_initializer()
             self.sess.run(init)
@@ -64,6 +67,11 @@ class Classifier:
                     self.chromosome.nodes[k].param, ", tf ",
                     self.sess.run(self.chromosome.params[self.chromosome.param_id[k]]))
 
+    def get_params(self):
+        params = []
+        for p in range(len(self.chromosome.params)):
+            params += [self.sess.run(self.chromosome.params[p])]
+        return params
 
     def evaluate(self):
         total = 0.0
@@ -74,6 +82,10 @@ class Classifier:
                 total += np.sum(labels == pred)
                 count += len(labels)
         return total/count
+
+    def delete(self):
+        self.sess.close()
+        del self
 
     def test(self):
         pass
