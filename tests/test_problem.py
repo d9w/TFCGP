@@ -17,7 +17,7 @@ def test_creation():
 
 def test_get_fitness():
     p = Problem(data.data, data.target)
-    ch = Chromosome(p.nin, p.nout, p.batch_size)
+    ch = Chromosome(p.nin, p.nout)
     ch.random(c)
     fitness = p.get_fitness(ch)
     print("fitness: ", fitness)

@@ -12,7 +12,7 @@ c.update("cfg/test.yaml")
 data = datasets.load_iris()
 
 p = Problem(data.data, data.target)
-ch = Chromosome(p.nin, p.nout, p.batch_size)
+ch = Chromosome(p.nin, p.nout)
 ch.random(c)
 clf = Classifier(ch, p.x_train, p.x_test, p.y_train, p.y_test,
                  batch_size=p.batch_size, epochs=p.epochs, seed=p.seed)

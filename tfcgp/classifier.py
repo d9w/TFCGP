@@ -50,15 +50,17 @@ class Classifier:
         with self.train_g.as_default():
             # init = tf.global_variables_initializer()
             # self.sess.run(init)
-            self.print_params()
             init = tf.local_variables_initializer()
             self.sess.run(init)
-            for i in range(self.steps * self.epochs):
-                logits, loss, _, acc, _ = self.sess.run((self.logits, self.loss_op,
-                                                         self.train_op,
-                                                         self.acc_op, self.acc_update))
-                history.append([loss, acc])
-            self.print_params()
+            for epoch in range(self.epochs):
+                mloss = 0.0
+                acc = 0.0
+                count = 0.0
+                for step in range(self.steps):
+                    loss, _, acc, _ = self.sess.run((self.loss_op, self.train_op,
+                                                     self.acc_op, self.acc_update))
+                    mloss += loss; count += 1
+                history.append([mloss/count, acc])
         return history
 
     def print_params(self):
@@ -82,36 +84,3 @@ class Classifier:
                 total += np.sum(labels == pred)
                 count += len(labels)
         return total/count
-
-    def delete(self):
-        self.sess.close()
-        del self
-
-    def test(self):
-        pass
-
-    # def run(self, c):
-    #     data = self.x_train[:c.batch_size, :]
-    #     with c.g.as_default():
-    #         out = c.get_tensors()
-    #         init = tf.global_variables_initializer()
-    #         with tf.Session() as sess:
-    #             sess.run(init)
-    #             return sess.run(out, feed_dict={c.tf_in: data})
-
-    # def fit(self, c):
-    #     with c.g.as_default():
-    #         out = c.get_tensors()
-    #         labels = tf.placeholder(tf.float32, shape=(self.batch_size, self.nout))
-    #         loss = tf.losses.mean_squared_error(labels=labels, predictions=out)
-    #         optimizer = tf.train.AdamOptimizer()
-    #         train = optimizer.minimize(loss)
-    #         init = tf.global_variables_initializer()
-    #         with tf.Session() as sess:
-    #             sess.run(init)
-    #             for i in range(self.epochs):
-    #                 d, l = self.train_itr.get_next()
-    #                 loss = tf.losses.mean_squared_error(labels=labels, predictions=out)
-    #                 _, lossv = sess.run((train, loss), feed_dict={c.tf_in: d, labels: l})
-    #                 print(lossv)
-    #             return lossv
