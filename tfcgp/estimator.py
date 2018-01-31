@@ -8,12 +8,17 @@ def model_gen(chromosome):
         # Create three fully connected layers each layer having a dropout
         # probability of 0.1.
         print("Chromosome: ", chromosome)
+        print("Features: ", features)
         net = tf.feature_column.input_layer(features, params['feature_columns'])
         for units in params['hidden_bunits']:
             net = tf.layers.dense(net, units=units, activation=tf.nn.relu)
 
         # Compute logits (1 per class).
-        logits = tf.layers.dense(net, params['n_masses'], activation=None)
+        # logits = tf.layers.dense(net, params['n_masses'], activation=None)
+        # chromosome.print_params()
+        logits = chromosome.get_tensors(features)
+        g = tf.get_default_graph()
+        print("1 Default graph: ", g.get_operations())
 
         # Compute predictions.
         predicted_classes = tf.argmax(logits, 1)

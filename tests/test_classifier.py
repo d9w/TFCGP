@@ -1,39 +1,14 @@
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 from tfcgp.config import Config
 from tfcgp.chromosome import Chromosome
-from tfcgp.estimator import model_gen
+from tfcgp.classifier import Classifier
 import numpy as np
 import tensorflow as tf
-import iris_data
+from sklearn import datasets
 
 c = Config()
 c.update("cfg/test.yaml")
-(train_x, train_y), (test_x, test_y) = iris_data.load_data()
 
-my_feature_columns = []
-for key in train_x.keys():
-    my_feature_columns.append(tf.feature_column.numeric_column(key=key))
-
-batch_size = 100
-train_steps = 1000
-nin = train_x.shape[1]
-nout = 3
-
-ch = Chromosome(nin, nout, batch_size, train_x.keys())
-ch.random(c)
-classifier = tf.estimator.Estimator(
-    model_fn=model_gen(ch),
-    params={
-        'feature_columns': my_feature_columns,
-        'hidden_bunits': [10, 10],
-        'n_masses': 3,
-    })
-
-g = tf.get_default_graph()
-print("2 Default graph: ", g.get_operations())
+clf = Classifier()
 
 def test_train():
     classifier.train(

@@ -3,31 +3,22 @@ from tfcgp.chromosome import Chromosome
 from tfcgp.problem import Problem
 import numpy as np
 import tensorflow as tf
+from sklearn import datasets
 
 c = Config()
-c.update("cfg/test.yaml")
+c.update("cfg/base.yaml")
+data = datasets.load_iris()
 
 def test_creation():
-    p = Problem()
+    p = Problem(data.data, data.target)
     print(p.x_train.shape)
     print(p.y_train.shape)
     assert True
 
-def test_problem_eval():
-    p = Problem()
+def test_eval():
+    p = Problem(data.data, data.target)
     ch = Chromosome(p.nin, p.nout, p.batch_size)
     ch.random(c)
-    outs = p.run(ch)
-    print("outputs: ", outs)
-    print(outs.shape)
+    fitness = p.get_fitness(ch)
+    print("fitness: ", fitness)
     assert True
-
-def test_fit():
-    p = Problem()
-    ch = Chromosome(p.nin, p.nout, p.batch_size)
-    ch.random(c)
-    loss = p.fit(ch)
-    print("loss: ", loss)
-    assert True
-
-
