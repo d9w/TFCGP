@@ -39,10 +39,9 @@ class Evolver:
                             f.write('L,%s,%d,%d,%d,%d,%0.10f,%0.10f,%0.10f\n' %
                                 (self.logname, self.generation, self.problem.eval_count, i,
                                  self.problem.epochs, history[i][0], history[i][1], fitness))
-                        if len(history) == 0:
-                            f.write('L,%s,%d,%d,%d,%d,%0.10f,%0.10f,%0.10f\n' %
-                                (self.logname, self.generation, self.problem.eval_count, 0,
-                                 self.problem.epochs, 0.0, 0.0, fitness))
+                    f.write('E,%s,%d,%d,%d,%d,%0.10f,%0.10f,%0.10f\n' %
+                        (self.logname, self.generation, self.problem.eval_count, 0,
+                            self.problem.epochs, 0.0, 0.0, fitness))
                 self.best = child
                 self.max_fit = fitness
             else:
