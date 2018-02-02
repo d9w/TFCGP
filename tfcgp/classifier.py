@@ -15,7 +15,7 @@ class Classifier:
         self.steps = np.floor(x_train.shape[0]/batch_size).astype(int)
         self.epochs = epochs
         self.lr = 0.1
-        self.lamarckian = lamarckain
+        self.lamarckian = lamarckian
 
         with self.train_g.as_default():
             self.chromosome.setup()
@@ -63,7 +63,9 @@ class Classifier:
                     mloss += loss; count += 1
                 history.append([mloss/count, acc])
             if self.lamarckian:
-                self.chromosome.set_params(self.get_params())
+                # TODO: lamarck causing recursion errors
+                p = self.get_params()
+                self.chromosome.set_params(p)
         return history
 
     def print_params(self):
