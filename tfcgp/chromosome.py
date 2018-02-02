@@ -50,6 +50,11 @@ class Chromosome:
     def get_active(self):
         return list(np.where([n.active for n in self.nodes])[0])
 
+    def set_params(self, p):
+        for k, v in self.param_id.items():
+            self.nodes[k].param = p[v]
+            self.genes[self.nin+4*k+3] = (p[v]+1.0)/2.0
+
     def setup(self):
         self.set_active()
         self.params = []

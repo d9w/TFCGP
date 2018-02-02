@@ -4,7 +4,7 @@ import numpy as np
 class Classifier:
 
     def __init__(self, chromosome, x_train, x_test, y_train, y_test,
-                 batch_size, epochs, seed):
+                 batch_size, epochs, seed, lamarckian):
 
         self.train_g = tf.Graph()
         self.sess = tf.Session(graph = self.train_g)
@@ -15,6 +15,7 @@ class Classifier:
         self.steps = np.floor(x_train.shape[0]/batch_size).astype(int)
         self.epochs = epochs
         self.lr = 0.1
+        self.lamarckian = lamarckain
 
         with self.train_g.as_default():
             self.chromosome.setup()
@@ -61,6 +62,8 @@ class Classifier:
                                                      self.acc_op, self.acc_update))
                     mloss += loss; count += 1
                 history.append([mloss/count, acc])
+            if self.lamarckian:
+                self.chromosome.set_params(self.get_params())
         return history
 
     def print_params(self):

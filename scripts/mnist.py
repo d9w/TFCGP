@@ -34,7 +34,7 @@ targets = all_dat[:, nin:]
 
 c = Config()
 c.update(args.config)
-p = Problem(data, targets, learn=args.learn, epochs=args.epochs, lamarckian=args.lamarck)
+p = Problem(data, targets, learn=args.learn, epochs=args.epochs)
 e = Evolver(p, c, logname=args.log)
 while p.eval_count < c.cfg["total_evals"]:
     e.step()
