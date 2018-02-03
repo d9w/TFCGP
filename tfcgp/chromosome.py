@@ -52,9 +52,8 @@ class Chromosome:
 
     def set_params(self, p):
         for k, v in self.param_id.items():
-            print(k, v)
             self.nodes[k].param = p[v]
-            self.genes[self.nout+4*(k-self.nout-1)+3] = (p[v]+1.0)/2.0
+            self.genes[self.nout+4*(k-self.nin)+3] = (p[v]+1.0)/2.0
 
     def setup(self):
         self.set_active()

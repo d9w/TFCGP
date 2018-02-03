@@ -3,7 +3,9 @@ from tfcgp.config import Config
 from tfcgp.evolver import Evolver
 from sklearn import datasets
 import numpy as np
+import tensorflow as tf
 
+tf.logging.set_verbosity(tf.logging.FATAL)
 c = Config()
 c.update("cfg/test.yaml")
 data = datasets.load_iris()
@@ -17,6 +19,7 @@ def test_mutate():
     e = Evolver(p, c)
     child = e.mutate(e.best)
     assert np.any(child.genes != e.best.genes)
+    assert len(child.genes) == len(e.best.genes)
 
 def test_improvement():
     e = Evolver(p, c)
