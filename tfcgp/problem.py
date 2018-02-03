@@ -5,13 +5,23 @@ from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from tfcgp.classifier import Classifier
 
+# from keras
+def to_categorical(y, num_classes=None):
+    y = np.array(y, dtype='int').ravel()
+    if not num_classes:
+        num_classes = np.max(y) + 1
+    n = y.shape[0]
+    categorical = np.zeros((n, num_classes))
+    categorical[np.arange(n), y] = 1
+    return categorical
+
 class Problem:
 
     def __init__(self, data, target, learn=True, batch_size=32, epochs=100, seed=1234,
                  lamarckian=False):
-        # if len(target.shape) == 1:
+        if len(target.shape) == 1:
             # target = np.array([target]).T;
-        # target = to_categorical(target)
+            target = to_categorical(target)
         self.nin = data.shape[1]
         self.nout = target.shape[1]
         data_mins = np.min(data, axis=0)

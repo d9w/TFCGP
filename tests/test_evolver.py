@@ -22,3 +22,9 @@ def test_improvement():
     e = Evolver(p, c)
     e.run(10)
     assert e.max_fit > 0.0
+
+def test_lamarckian():
+    p = Problem(data.data, data.target, lamarckian=True)
+    e = Evolver(p, c)
+    e.run(10)
+    assert e.max_fit > 0.0

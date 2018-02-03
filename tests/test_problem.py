@@ -22,3 +22,11 @@ def test_get_fitness():
     fitness = p.get_fitness(ch)
     print("fitness: ", fitness)
     assert True
+
+def test_lamarckian():
+    p = Problem(data.data, data.target, lamarckian=True)
+    ch = Chromosome(p.nin, p.nout)
+    ch.random(c)
+    fitness = p.get_fitness(ch)
+    print("fitness: ", fitness)
+    assert True
