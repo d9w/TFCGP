@@ -28,6 +28,7 @@ class Evolver:
         return child
 
     def step(self):
+        # todo: this is a 1+1 EA
         for i in range(self.config.cfg["lambda"]):
             child = self.mutate(self.best)
             fitness, history = self.problem.get_fitness(child)

@@ -1,6 +1,7 @@
 from tfcgp.problem import Problem
 from tfcgp.config import Config
 from tfcgp.evolver import Evolver
+from tfcgp.learn_evo import LearnEvolver
 from sklearn import datasets
 import numpy as np
 import tensorflow as tf
@@ -29,5 +30,10 @@ def test_improvement():
 def test_lamarckian():
     p = Problem(data.data, data.target, lamarckian=True)
     e = Evolver(p, c)
+    e.run(10)
+    assert e.max_fit > 0.0
+
+def test_learn_evo():
+    e = LearnEvolver(p, c)
     e.run(10)
     assert e.max_fit > 0.0
