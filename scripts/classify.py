@@ -1,6 +1,7 @@
 from tfcgp.problem import Problem
 from tfcgp.config import Config
 from tfcgp.evolver import Evolver
+from tfcgp.learn_evo import LearnEvolver
 import argparse
 import numpy as np
 import os
@@ -35,6 +36,6 @@ targets = all_dat[:, nin:]
 c = Config()
 c.update(args.config)
 p = Problem(data, targets, learn=args.learn, epochs=args.epochs, lamarckian=args.lamarck)
-e = Evolver(p, c, logname=args.log)
+e = LearnEvolver(p, c, logname=args.log)
 while p.eval_count < c.cfg["total_evals"]:
     e.step()
