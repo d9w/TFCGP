@@ -1,2 +1,2 @@
-# TfCGP
-CGP in Tensorflow
+# TFCGP
+CGP in TensorFlow
