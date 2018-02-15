@@ -63,7 +63,6 @@ class Classifier:
                     mloss += loss; count += 1
                 history.append([mloss/count, acc])
             if self.lamarckian:
-                # TODO: lamarck causing recursion errors
                 p = self.get_params()
                 self.chromosome.set_params(p)
         return history

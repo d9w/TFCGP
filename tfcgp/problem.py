@@ -46,4 +46,5 @@ class Problem:
             history = clf.train()
         train_acc = clf.evaluate()
         clf.sess.close()
+        del clf
         return train_acc, history

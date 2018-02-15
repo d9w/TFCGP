@@ -28,7 +28,8 @@ class Evolver:
         return child
 
     def step(self):
-        # todo: this is a 1+1 EA
+        next_best = self.best
+        next_max_fit = self.max_fit
         for i in range(self.config.cfg["lambda"]):
             child = self.mutate(self.best)
             fitness, history = self.problem.get_fitness(child)
@@ -43,8 +44,10 @@ class Evolver:
                         f.write('E,%s,%d,%d,%d,%d,%0.10f,%0.10f,%0.10f\n' %
                             (self.logname, self.generation, self.problem.eval_count, 0,
                                 self.problem.epochs, 0.0, 0.0, fitness))
-                self.best = child
-                self.max_fit = fitness
+                next_best = child
+                next_max_fit = fitness
             else:
                 del child
+        self.best = next_best
+        self.max_fit = next_max_fit
         self.generation += 1

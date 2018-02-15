@@ -3,6 +3,9 @@ node_inputs: 2
 total_evals: 50000
 mutation_rate: 0.1
 lambda: 5
+ga_population: 50
+ga_elitism: 0.1
+ga_mutation: 0.8
 functions:
   - tf.add:
       arity: 2
