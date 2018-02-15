@@ -15,59 +15,56 @@ Gadfly.push_theme(Theme(major_label_font="Droid Sans",
 colors = [colorant"#e41a1c", colorant"#377eb8", colorant"#4daf4a",
           colorant"#984ea3", colorant"#ff7f00", colorant"#ffff33"]
 
-names = [:type, :logname, :gen, :eval, :epoch, :total_epochs, :loss, :acc, :fit]
+names = [:type, :problem, :id, :seed, :gen, :eval, :epoch, :total_epochs, :loss, :acc, :fit]
 
 function get_res(log::String)
     readtable(log, header=false, separator=',', names=names)
 end
 
 function reducef(df, xmax)
-    r = 1:length(df[:gen])
-    if df[:gen][end] != xmax
-        r = 1:(length(df[:gen])+1)
+    r = 1:length(df[:eval])
+    if df[:eval][end] != xmax
+        r = 1:(length(df[:eval])+1)
     end
     map(i->mapf(i, df, xmax), r)
 end
 
 function mapf(i::Int64, df, xmax::Int64)
-    if i > length(df[:gen])
-        if df[:gen][end] <= xmax
-            return df[:fit][end] * ones(xmax - df[:gen][end])
+    if i > length(df[:eval])
+        if df[:eval][end] <= xmax
+            return df[:fit][end] * ones(xmax - df[:eval][end])
         else
             return []
         end
     end
     lower = 0
     if i >= 2
-        lower = df[:gen][i-1]
-    end
-    if df[:gen][i] > lower
-        return df[:fit][i] * ones(df[:gen][i] - lower)
-    # else
-        # return df[:fit][i] * ones(df[:gen][i])
+        lower = df[:eval][i-1]
+        return df[:fit][i] * ones(df[:eval][i] - lower)
+    else
+        return df[:fit][i] * ones(df[:eval][i])
     end
     return []
 end
 
-function get_stats(res::DataFrame; xmax::Int64 = maximum(res[:gen]))
+function get_stats(res::DataFrame; xmax::Int64 = maximum(res[:eval]))
     limited = res
-    if xmax < maximum(res[:gen])
+    if xmax < maximum(res[:eval])
         limited = @from i in res begin
-            @where i.gen <= xmax
+            @where i.eval <= xmax
             @select i
             @collect DataFrame
         end
     end
-    filled = by(limited, [:logname, :total_epochs],
+    filled = by(limited, [:id, :seed],
                 df->reduce(vcat, reducef(df, xmax)))
     filled[:xs] = repeat(1:xmax, outer=Int64(size(filled,1)/xmax))
-    stats = by(filled, [:xs, :total_epochs],
+    stats = by(filled, [:xs, :id],
                df->DataFrame(stds=std(df[:x1]), means=mean(df[:x1]), mins=minimum(df[:x1]),
                              maxs=maximum(df[:x1])))
     stats[:stds][isnan.(stats[:stds])] = 0;
     stats[:lower] = stats[:means]-0.5*stats[:stds]
     stats[:upper] = stats[:means]+0.5*stats[:stds]
-    stats[:epochs] = stats[:total_epochs]
     stats
 end
 
@@ -78,11 +75,11 @@ function plot_evo(stats::DataFrame, title::String, filename::String="training";
                   ymax=maximum(stats[:upper]),
                   ylabel="Accuracy",
                   key_position=:right)
-    plt = plot(stats, x="xs", y="means", ymin="lower", ymax="upper", color="epochs",
+    plt = plot(stats, x="xs", y="means", ymin="lower", ymax="upper", color="id",
                Geom.line, Geom.ribbon,
                Scale.color_discrete_manual(colors...),
                Guide.title(title),
-               Guide.xlabel("Generations"),
+               Guide.xlabel("Evaluations"),
                Guide.ylabel(ylabel),
                Coord.cartesian(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
                style(key_position=key_position))
