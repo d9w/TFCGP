@@ -1,6 +1,7 @@
 from tfcgp.problem import Problem
 from tfcgp.config import Config
 from tfcgp.evolver import Evolver
+from tensorflow.contrib.keras import datasets
 import argparse
 import numpy as np
 import os
@@ -16,21 +17,14 @@ parser.add_argument('--lamarck', dest='lamarck', action='store_const',
                     const=True, default=False,
                     help='Turn on Lamarckian evolution')
 parser.add_argument('--log', type=str, help='Log file')
-parser.add_argument('--data', type=str, help='Data file', default='data/glass.dt')
 parser.add_argument('--config', type=str, help='Config file', default='cfg/base.yaml')
 parser.add_argument('--epochs', type=int, help='Number of epochs', default=1)
 parser.add_argument('--seed', type=int, help='Random seed', default=0)
 args = parser.parse_args()
 
-data = []; targets = []
-nin = 0
-with open(args.data, 'r') as p:
-    for i in p:
-        nin = int(i.strip('\n').split(' ')[1])
-        break
-all_dat = np.genfromtxt(args.data, delimiter=' ', skip_header=4)
-data = all_dat[:, :nin]
-targets = all_dat[:, nin:]
+train, test = datasets.mnist.load_data()
+data = np.concatenate((train[0], test[0]))
+targets = np.concatenate((train[1], test[1]))
 
 c = Config()
 c.update(args.config)

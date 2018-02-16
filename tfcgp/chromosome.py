@@ -89,7 +89,11 @@ class Chromosome:
     def get_tensors(self, inputs):
         tf_outputs = []
         for i in range(len(self.outputs)):
-            tf_outputs += [self.recurse_tensor(self.outputs[i], inputs)]
+            # tf_outputs += [tf.reduce_mean(tf.reduce_mean(
+                # self.recurse_tensor(self.outputs[i], inputs)))]
+            tf_outputs += [tf.reduce_mean(
+                self.recurse_tensor(self.outputs[i], inputs),
+                axis=1)]
         self.tf_out = tf.transpose(tf.stack(tf_outputs, axis=0))
         self.tf_out = tf.where(tf.is_nan(self.tf_out),
                                tf.zeros_like(self.tf_out), self.tf_out)

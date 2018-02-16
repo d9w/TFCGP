@@ -24,8 +24,8 @@ class Problem:
             target = to_categorical(target)
         self.nin = data.shape[1]
         self.nout = target.shape[1]
-        data_mins = np.min(data, axis=0)
-        data_maxs = np.max(data, axis=0)
+        data_mins = np.amin(data)
+        data_maxs = np.amax(data)
         data = (data - data_mins) / (data_maxs - data_mins)
         self.x_train, self.x_test, self.y_train, self.y_test = train_test_split(
             data, target)
