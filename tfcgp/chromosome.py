@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 from graphviz import Digraph
+from . import config as custom
 
 class Node:
 
@@ -91,9 +92,15 @@ class Chromosome:
         for i in range(len(self.outputs)):
             # tf_outputs += [tf.reduce_mean(tf.reduce_mean(
                 # self.recurse_tensor(self.outputs[i], inputs)))]
-            tf_outputs += [tf.reduce_mean(
-                self.recurse_tensor(self.outputs[i], inputs),
-                axis=1)]
+            out = self.recurse_tensor(self.outputs[i], inputs)
+            if len(out.shape) > 1:
+                out = tf.reduce_mean(out, axis=1)
+            # if len(out.shape) == 0:
+            #     out = tf.tile(out, tf.constant(inputs.shape[0]))
+            tf_outputs += [out]
+            # tf_outputs += [tf.reduce_mean(
+            #     self.recurse_tensor(self.outputs[i], inputs),
+            #     axis=1)]
         self.tf_out = tf.transpose(tf.stack(tf_outputs, axis=0))
         self.tf_out = tf.where(tf.is_nan(self.tf_out),
                                tf.zeros_like(self.tf_out), self.tf_out)

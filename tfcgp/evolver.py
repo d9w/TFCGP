@@ -32,7 +32,12 @@ class Evolver:
         next_max_fit = self.max_fit
         for i in range(self.config.cfg["lambda"]):
             child = self.mutate(self.best)
-            fitness, history = self.problem.get_fitness(child)
+            fitness = 0.0
+            history = []
+            try:
+                fitness, history = self.problem.get_fitness(child)
+            except Exception as e:
+                print(e)
             if fitness >= next_max_fit:
                 if fitness > next_max_fit:
                     with open(self.logfile, 'a') as f:
