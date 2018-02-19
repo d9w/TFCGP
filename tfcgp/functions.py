@@ -12,7 +12,7 @@ def add(x, y):
 def sqrt(x):
     return tf.sqrt(tf.abs(x))
 
-def ypow(x):
+def ypow(x, y):
     return tf.pow(tf.abs(x), tf.abs(y))
 
 def expx(x):
@@ -26,6 +26,12 @@ def aminus(x, y):
 
 def sigmoid(x):
     return tf.divide(1.0, tf.add(1.0, tf.exp(tf.multiply(-1.0, x))))
+
+def greater(x, y):
+    return tf.cast(tf.greater(x, y), tf.float32)
+
+def less(x, y):
+    return tf.cast(tf.less(x, y), tf.float32)
 
 ## MTCGP functions
 

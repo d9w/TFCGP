@@ -9,8 +9,6 @@ ga_mutation: 0.8
 functions:
   - custom.one:
       arity: 1
-  - custom.zero:
-      arity: 1
   - custom.add:
       arity: 2
   - custom.sqrt:
@@ -24,6 +22,12 @@ functions:
   - custom.aminus:
       arity: 2
   - custom.sigmoid:
+      arity: 1
+  - custom.greater:
+      arity: 2
+  - custom.less:
+      arity: 2
+  - tf.negative:
       arity: 1
   - tf.multiply:
       arity: 2
@@ -44,8 +48,6 @@ functions:
   - tf.minimum:
       arity: 2
   - tf.maximum:
-      arity: 2
-  - tf.greater:
       arity: 2
   - tf.identity:
       arity: 1
