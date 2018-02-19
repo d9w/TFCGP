@@ -48,9 +48,9 @@ class Classifier:
 
     def train(self):
         history = []
+        start_acc = self.evaluate()
+        history.append([0.0, start_acc])
         with self.train_g.as_default():
-            # init = tf.global_variables_initializer()
-            # self.sess.run(init)
             init = tf.local_variables_initializer()
             self.sess.run(init)
             for epoch in range(self.epochs):
