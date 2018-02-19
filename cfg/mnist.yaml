@@ -1,19 +1,31 @@
-num_nodes: 10
+num_nodes: 500
 node_inputs: 2
-total_evals: 50
+total_evals: 50000
 mutation_rate: 0.1
 lambda: 5
 ga_population: 10
 ga_elitism: 0.1
 ga_mutation: 0.8
 functions:
-  - tf.add:
+  - custom.one:
+      arity: 1
+  - custom.zero:
+      arity: 1
+  - custom.add:
       arity: 2
-  - tf.subtract:
+  - custom.sqrt:
+      arity: 1
+  - custom.ypow:
       arity: 2
+  - custom.expx:
+      arity: 1
+  - custom.sqrtxy:
+      arity: 2
+  - custom.aminus:
+      arity: 2
+  - custom.sigmoid:
+      arity: 1
   - tf.multiply:
-      arity: 2
-  - tf.divide:
       arity: 2
   - tf.square:
       arity: 1
@@ -21,21 +33,19 @@ functions:
       arity: 1
   - tf.sin:
       arity: 1
-  - tf.atan:
+  - tf.round:
       arity: 1
-  - custom.first:
+  - tf.log1p:
       arity: 1
-  - custom.last:
+  - tf.ceil:
       arity: 1
-  - custom.y_index:
+  - tf.floor:
+      arity: 1
+  - tf.minimum:
       arity: 2
-  - custom.reduce_max:
-      arity: 1
-  - custom.reduce_min:
-      arity: 1
-  - custom.reduce_mean:
-      arity: 1
-  - custom.reduce_sum:
-      arity: 1
-  - custom.reduce_prod:
+  - tf.maximum:
+      arity: 2
+  - tf.greater:
+      arity: 2
+  - tf.identity:
       arity: 1

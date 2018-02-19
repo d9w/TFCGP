@@ -24,6 +24,7 @@ args = parser.parse_args()
 
 train, test = datasets.mnist.load_data()
 data = np.concatenate((train[0], test[0]))
+data = np.reshape(data, (data.shape[0], data.shape[1]*data.shape[2]))
 targets = np.concatenate((train[1], test[1]))
 
 c = Config()

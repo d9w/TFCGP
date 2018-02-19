@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import yaml
 from graphviz import Digraph
-from . import config as custom
+from . import functions as custom
 
 class Node:
 
