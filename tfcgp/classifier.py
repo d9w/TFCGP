@@ -22,7 +22,7 @@ class Classifier:
             train = tf.data.Dataset.from_tensor_slices((x_train, y_train));
             train = train.shuffle(seed).repeat().batch(self.batch_size)
             train_features, train_labels = train.make_one_shot_iterator().get_next()
-            program_out = self.chromosome.get_tensors(train_features)
+            program_out = self.chromosome.get_tensors(train_features, self.batch_size)
             program_out = tf.add(program_out, tf.reduce_min(program_out))
             out_sum = tf.reduce_sum(program_out)
             self.logits = tf.divide(program_out, tf.cond(tf.greater(out_sum, 0),
